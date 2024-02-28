@@ -1,4 +1,5 @@
 #include "main.h"
+
 int main (void)
 {
 	pid_t child_process;
