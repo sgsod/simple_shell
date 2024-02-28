@@ -1,18 +1,18 @@
 #include "main.h"
-int handle_args(char *line, int n, char **av, char **env);
+int handle_args(char *line, char **av);
 /**
   * main - Open a simple shell
   * Return - 0 success
   */
-int main(int ac, char **av, char **env)
+int main(__attribute__((unused)) int ac, char **av)
 {
 	char *line = NULL;
 	size_t n = 0;
 
-	printf("($) %d", getpid());
+	printf("($) ");
 	while (getline(&line, &n, stdin) != EOF)
 	{
-		handle_args(line, n, av, env);
+		handle_args(line, av);
 		printf("($) ");
 	}
 	printf("\n");
@@ -25,12 +25,14 @@ int main(int ac, char **av, char **env)
   * @n: number of characters
   * Return: -1 error, 0 success
   */
-int handle_args(char *line, int n, char **av, char **env)
+int handle_args(char *line, char **av)
 {
 	pid_t child_p;
 	int status, arg_iter;
-	char *argv[] = {line, NULL};
+	char *argv[2];
 
+	argv[0] = line;
+	argv[1] = NULL;
 	child_p = fork();
 	if (child_p == -1)
 	{
@@ -42,9 +44,8 @@ int handle_args(char *line, int n, char **av, char **env)
 		arg_iter = strlen(line);
 		if (line[arg_iter - 1] == '\n')
 			line[arg_iter - 1] = '\0';
-		if (execve(argv[0], argv, env) == -1)
+		if (execve(argv[0], argv, NULL) == -1)
 		{
-			printf("%s\n", line);
 			perror(av[0]);
 			exit(EXIT_FAILURE);
 		}
