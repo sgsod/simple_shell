@@ -10,14 +10,13 @@ int main(__attribute__((unused)) int ac, char **av)
 	char *line = NULL;
 	size_t n = 0;
 
-	printf("($) ");
+	printf("#cisfun$ ");
 	while (getline(&line, &n, stdin) != EOF)
 	{
 		handle_args(line, av);
-		printf("($) ");
+		printf("#cisfun$ ");
 	}
 	free(line);
-	printf("\n");
 	return (0);
 }
 
