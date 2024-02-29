@@ -6,5 +6,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+extern char **environ;
 int handle_args(char *line, char **av);
 #endif /* MAIN_H */

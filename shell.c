@@ -46,8 +46,9 @@ int handle_args(char *line, char **av)
 		arg_iter = strlen(line);
 		if (line[arg_iter - 1] == '\n')
 			line[arg_iter - 1] = '\0';
-		if (execve(argv[0], argv, NULL) == -1)
+		if (execve(argv[0], argv, environ) == -1)
 		{
+			free(line);
 			perror(av[0]);
 			exit(EXIT_FAILURE);
 		}
