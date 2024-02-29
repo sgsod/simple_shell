@@ -1,8 +1,9 @@
 #include "main.h"
-int handle_args(char *line, char **av);
 /**
   * main - Open a simple shell
-  * Return - 0 success
+  * @ac: number of arguments
+  * @av: arguments
+  * Return: 0 success
   */
 int main(__attribute__((unused)) int ac, char **av)
 {
@@ -15,6 +16,7 @@ int main(__attribute__((unused)) int ac, char **av)
 		handle_args(line, av);
 		printf("($) ");
 	}
+	free(line);
 	printf("\n");
 	return (0);
 }
@@ -22,7 +24,7 @@ int main(__attribute__((unused)) int ac, char **av)
 /**
   * handle_args - process arguments given
   * @line: string recieved from getline
-  * @n: number of characters
+  * @av: number of characters
   * Return: -1 error, 0 success
   */
 int handle_args(char *line, char **av)
@@ -50,7 +52,7 @@ int handle_args(char *line, char **av)
 			exit(EXIT_FAILURE);
 		}
 	}
-	else 
+	else
 		wait(&status);
 	return (0);
 }
