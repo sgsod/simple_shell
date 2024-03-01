@@ -10,6 +10,15 @@ int main(__attribute__((unused)) int ac, char **av)
 	char *line = NULL;
 	size_t n = 0;
 
+	if (!(isatty(fileno(stdin))))
+	{ /*in case pipe '|' was used for input*/
+		while (getline(&line, &n, stdin) != EOF)
+		{
+			handle_args(line, av);
+		}
+		return (0);
+	}
+
 	printf("#cisfun$ ");
 	while (getline(&line, &n, stdin) != EOF)
 	{
@@ -42,9 +51,10 @@ int handle_args(char *line, char **av)
 	}
 	if (child_p == 0)
 	{
-		arg_iter = strlen(line);
-		if (line[arg_iter - 1] == '\n')
-			line[arg_iter - 1] = '\0';
+		arg_iter = strlen(line) - 1;
+		if (line[arg_iter] == '\n')
+			line[arg_iter] = '\0';
+
 		if (execve(argv[0], argv, environ) == -1)
 		{
 			free(line);
@@ -56,3 +66,9 @@ int handle_args(char *line, char **av)
 		wait(&status);
 	return (0);
 }
+/**
+  * alloc_strarr - create array got of argumrnts
+  * line string to separate
+  * argv = alloc_strarr(line);
+  * return pointer to line
+  */
