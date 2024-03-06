@@ -18,6 +18,7 @@ int main(__attribute__((unused)) int ac, char **av)
 		while ((getline_err = getline(&line, &n, stdin)) != EOF)
 		{
 			handle_args(line, av);
+			free(line);
 			line = NULL;
 		}
 	}
@@ -91,4 +92,18 @@ void c_sighandler(__attribute__((unused)) int num)
   * line string to separate
   * argv = alloc_strarr(line);
   * return pointer to line
+  *
+  * char **alloc_strarr(char *line)
+  * {
+  * char **argv;
+  * int index, arg_len = 0, st;
+  * for (index = 0; line[index] != '\0'; ++index)
+  * {
+  * if ((index == 0 && line[index] != ' ')
+  * || (line[index] != ' ' && str[index - 1] == '\0'))
+  * arg_len++;
+  * if (line[index] == ' ' || line[index] == '\n')
+  * line[index] = '\0';
+  * }
+  * }
   */
