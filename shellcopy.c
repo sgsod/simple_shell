@@ -1,4 +1,5 @@
 #include "main.h"
+char **alloc_strarr(char *line);
 void c_sighandler(__attribute__((unused)) int num);
 char *line = NULL;
 /**
@@ -28,6 +29,8 @@ int main(__attribute__((unused)) int ac, char **av)
 		while ((getline_err = getline(&line, &n, stdin)) != EOF)
 		{
 			handle_args(line, av);
+			free(line);
+			line = NULL;
 			printf("#cisfun$ ");
 		}
 		putchar('\n');
@@ -45,11 +48,11 @@ int main(__attribute__((unused)) int ac, char **av)
 int handle_args(char *line, char **av)
 {
 	pid_t child_p;
-	int status, arg_iter;
-	char *argv[2];
+	int status;
+	char **argv;
 
-	argv[0] = line;
-	argv[1] = NULL; 
+	argv = alloc_strarr(line);
+
 	child_p = fork();
 	if (child_p == -1)
 	{
@@ -58,13 +61,9 @@ int handle_args(char *line, char **av)
 	}
 	if (child_p == 0)
 	{
-		arg_iter = strlen(line) - 1;
-		for (; line[arg_iter] == '\n' || line[arg_iter] == ' '; --arg_iter)
-			line[arg_iter] = '\0';
-
-
 		if (execve(argv[0], argv, environ) == -1)
 		{
+			free(argv);
 			free(line);
 			perror(av[0]);
 			_exit(EXIT_FAILURE);
@@ -73,6 +72,7 @@ int handle_args(char *line, char **av)
 	else
 	{
 		wait(&status);
+		free(argv);
 	}
 	return (0);
 }
@@ -89,21 +89,41 @@ void c_sighandler(__attribute__((unused)) int num)
 }
 /**
   * alloc_strarr - create array got of argumrnts
-  * line string to separate
-  * argv = alloc_strarr(line);
-  * return pointer to line
-  *
-  * char **alloc_strarr(char *line)
-  * {
-  * char **argv;
-  * int index, arg_len = 0, st;
-  * for (index = 0; line[index] != '\0'; ++index)
-  * {
-  * if ((index == 0 && line[index] != ' ')
-  * || (line[index] != ' ' && str[index - 1] == '\0'))
-  * arg_len++;
-  * if (line[index] == ' ' || line[index] == '\n')
-  * line[index] = '\0';
-  * }
-  * }
+  * @line: string to separate
+  * Return: pointer to list of strings
   */
+char **alloc_strarr(char *str)
+{
+	char **argv;
+	int index, arg_len = 0, str_len = strlen(line);
+
+	for (index = 0; str[index] != '\0'; ++index)
+	{ /*tokenize line*/
+		if (str[index] == ' ' || str[index] == '\n')
+			str[index] = '\0';
+		if ((index == 0 && str[index] != '\0')
+				|| (line[index] != '\0' && line[index - 1] == '\0'))
+			++arg_len;
+	}
+	
+	argv = malloc(++arg_len * sizeof(char *));
+	if (argv == NULL)
+	{
+		perror("Malloc -> argv");
+		_exit(EXIT_FAILURE);
+	}
+
+	arg_len = 0;
+	for (index = 0; index < str_len; ++index)
+	{ /*make list of arguments*/
+		if ((index == 0 && line[index] != '\0')
+				|| (line[index] != '\0' && line[index - 1] == '\0'))
+		{
+			argv[arg_len] = line + index;
+			++arg_len;
+		}
+	}
+	argv[arg_len] = NULL;
+
+	return (argv);
+}
