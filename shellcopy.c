@@ -61,7 +61,13 @@ int handle_args(char *line, char **av)
 	}
 	if (child_p == 0)
 	{
-		if (execve(argv[0], argv, environ) == -1)
+		if (argv[0] == NULL)
+		{
+			free(argv);
+			free(line);
+			_exit(EXIT_FAILURE);
+		}
+		else if (execve(argv[0], argv, environ) == -1)
 		{
 			free(argv);
 			free(line);
@@ -89,7 +95,7 @@ void c_sighandler(__attribute__((unused)) int num)
 }
 /**
   * alloc_strarr - create array got of argumrnts
-  * @line: string to separate
+  * @str: string to separate
   * Return: pointer to list of strings
   */
 char **alloc_strarr(char *str)
@@ -102,10 +108,11 @@ char **alloc_strarr(char *str)
 		if (str[index] == ' ' || str[index] == '\n')
 			str[index] = '\0';
 		if ((index == 0 && str[index] != '\0')
-				|| (line[index] != '\0' && line[index - 1] == '\0'))
+				|| ((str[index] != '\0' && str[index] != '\n')
+					&& str[index - 1] == '\0'))
 			++arg_len;
 	}
-	
+
 	argv = malloc(++arg_len * sizeof(char *));
 	if (argv == NULL)
 	{
@@ -116,10 +123,11 @@ char **alloc_strarr(char *str)
 	arg_len = 0;
 	for (index = 0; index < str_len; ++index)
 	{ /*make list of arguments*/
-		if ((index == 0 && line[index] != '\0')
-				|| (line[index] != '\0' && line[index - 1] == '\0'))
+		if ((index == 0 && str[index] != '\0')
+				|| ((str[index] != '\0' && str[index] != '\n')
+					&& str[index - 1] == '\0'))
 		{
-			argv[arg_len] = line + index;
+			argv[arg_len] = str + index;
 			++arg_len;
 		}
 	}
